@@ -29,3 +29,5 @@ Thumbs.db
 # Materi kuliah & dokumen soal (tidak ikut repo)
 /.materials
 /Mini Project Proyek 3 - Case B Karhutala.pdf
+
+*.bak
