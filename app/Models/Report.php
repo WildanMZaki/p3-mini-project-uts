@@ -49,6 +49,11 @@ class Report extends Model
         return $this->belongsTo(Area::class);
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->reporter()->is($user);
+    }
+
     public function hasEvidence(): bool
     {
         return $this->evidence_path !== null;

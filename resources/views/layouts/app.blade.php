@@ -16,9 +16,9 @@
         <div class="nav-links">
             <a href="{{ route('dashboard') }}">Dashboard</a>
             <a href="{{ route('reports.index') }}">Laporan</a>
-            @if (auth()->user()->role === \App\Enums\UserRole::Pelapor)
+            @can('create', \App\Models\Report::class)
                 <a href="{{ route('reports.create') }}">Buat Laporan</a>
-            @endif
+            @endcan
         </div>
         <div class="nav-user">
             <span>{{ auth()->user()->name }} <small>({{ auth()->user()->role->label() }})</small></span>

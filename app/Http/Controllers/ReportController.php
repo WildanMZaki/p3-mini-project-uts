@@ -17,8 +17,9 @@ class ReportController extends Controller
 
     public function index(Request $request): View
     {
-        $reports = $request->user()->reports()
-            ->with('area')
+        $reports = Report::query()
+            ->visibleTo($request->user())
+            ->with(['area', 'reporter'])
             ->latest('occurred_at')
             ->paginate(10);
 

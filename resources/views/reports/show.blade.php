@@ -9,13 +9,17 @@
             <span class="badge badge-{{ $report->status->value }}">{{ $report->status->label() }}</span>
         </div>
         <div class="actions">
-            <a href="{{ route('reports.edit', $report) }}" class="btn">Perbaiki</a>
-            <form method="POST" action="{{ route('reports.destroy', $report) }}"
-                  onsubmit="return confirm('Hapus laporan ini?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger">Hapus</button>
-            </form>
+            @can('update', $report)
+                <a href="{{ route('reports.edit', $report) }}" class="btn">Perbaiki</a>
+            @endcan
+            @can('delete', $report)
+                <form method="POST" action="{{ route('reports.destroy', $report) }}"
+                      onsubmit="return confirm('Hapus laporan ini?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            @endcan
         </div>
     </div>
 
