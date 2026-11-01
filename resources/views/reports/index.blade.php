@@ -14,6 +14,19 @@
         @endcan
     </div>
 
+    <div class="card">
+        <label class="filters">
+            <span>Cek kondisi area (tanpa reload):</span>
+            <select data-area-summary="#index-area-summary" data-url="{{ route('areas.summary', '__AREA__') }}">
+                <option value="">-- pilih area --</option>
+                @foreach ($areas as $area)
+                    <option value="{{ $area->id }}">{{ $area->fullName() }}</option>
+                @endforeach
+            </select>
+        </label>
+        <div id="index-area-summary" style="margin-top: .75rem"></div>
+    </div>
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -53,3 +66,7 @@
 
     {{ $reports->links() }}
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/area-summary.js') }}"></script>
+@endpush

@@ -27,7 +27,10 @@ class ReportController extends Controller
             ->latest('occurred_at')
             ->paginate(10);
 
-        return view('reports.index', compact('reports'));
+        return view('reports.index', [
+            'reports' => $reports,
+            'areas' => Area::query()->orderBy('name')->get(),
+        ]);
     }
 
     public function create(): View

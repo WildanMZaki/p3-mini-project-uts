@@ -5,7 +5,9 @@
 
 <label>
     Area / Wilayah
-    <select name="area_id" required>
+    <select name="area_id" required
+            data-area-summary="#area-summary"
+            data-url="{{ route('areas.summary', '__AREA__') }}">
         <option value="">-- pilih area --</option>
         @foreach ($areas as $area)
             <option value="{{ $area->id }}" @selected(old('area_id', $report?->area_id) == $area->id)>
@@ -14,6 +16,8 @@
         @endforeach
     </select>
 </label>
+{{-- Diisi oleh public/js/area-summary.js lewat fetch() --}}
+<div id="area-summary"></div>
 
 <label>
     Judul laporan
@@ -86,6 +90,7 @@
 </label>
 
 @push('scripts')
+<script src="{{ asset('js/area-summary.js') }}"></script>
 <script>
     document.getElementById('btn-detect-location')?.addEventListener('click', function () {
         const hint = document.getElementById('location-hint');

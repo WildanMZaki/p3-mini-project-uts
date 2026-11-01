@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AreaSummaryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowUpController;
@@ -45,6 +46,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/{report}/evidence', ReportEvidenceController::class)
         ->can('view', 'report')
         ->name('reports.evidence');
+
+    // Ringkasan area (JSON) untuk fetch()
+    Route::get('/areas/{area}/summary', AreaSummaryController::class)->name('areas.summary');
 
     // Peninjauan oleh relawan pemantau
     Route::post('/reports/{report}/claim', [ReviewController::class, 'claim'])
