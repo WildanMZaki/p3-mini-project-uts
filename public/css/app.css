@@ -82,6 +82,9 @@ table { width: 100%; border-collapse: collapse; background: #fff; }
 th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border); font-size: .9rem; vertical-align: top; }
 th { background: #f3f4f6; }
 tfoot td { font-weight: 700; }
+dl.detail { display: grid; grid-template-columns: 180px 1fr; gap: .4rem 1rem; margin: 0; }
+dl.detail dt { color: var(--muted); }
+dl.detail dd { margin: 0; }
 
 /* Badge status */
 .badge { display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; font-weight: 600; background: #e5e7eb; }

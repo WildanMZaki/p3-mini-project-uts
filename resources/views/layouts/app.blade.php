@@ -17,7 +17,7 @@
             <a href="{{ route('dashboard') }}">Dashboard</a>
             <a href="{{ route('reports.index') }}">Laporan</a>
             @if (auth()->user()->role === \App\Enums\UserRole::Pelapor)
-                <a href="#">Buat Laporan</a>
+                <a href="{{ route('reports.create') }}">Buat Laporan</a>
             @endif
         </div>
         <div class="nav-user">
