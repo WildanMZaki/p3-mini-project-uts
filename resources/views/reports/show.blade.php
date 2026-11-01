@@ -209,6 +209,21 @@
         </div>
     @endif
 
+    <div class="card">
+        <h2>Riwayat Status</h2>
+        <ul class="timeline">
+            @forelse ($report->statusLogs as $log)
+                <li>
+                    {{ $log->created_at->format('d M Y H:i') }} &mdash;
+                    {{ $log->from_status?->label() ?? 'Dibuat' }} &rarr; <strong>{{ $log->to_status->label() }}</strong>
+                    <span class="muted">oleh {{ $log->changer?->name ?? 'sistem' }}</span>
+                </li>
+            @empty
+                <li class="muted">Belum ada riwayat.</li>
+            @endforelse
+        </ul>
+    </div>
+
     @if ($related->isNotEmpty())
         <div class="card">
             <h2>Laporan Lain di Area yang Sama (±48 jam)</h2>

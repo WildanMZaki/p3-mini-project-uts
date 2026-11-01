@@ -66,7 +66,14 @@ class ReportController extends Controller
 
     public function show(Request $request, Report $report): View
     {
-        $report->load(['area', 'reporter', 'reviewer', 'forwardings.agency', 'forwardings.coordinator']);
+        $report->load([
+            'area',
+            'reporter',
+            'reviewer',
+            'forwardings.agency',
+            'forwardings.coordinator',
+            'statusLogs.changer',
+        ]);
 
         $related = $request->user()->hasRole(UserRole::Relawan, UserRole::Koordinator)
             ? $report->relatedReports()
