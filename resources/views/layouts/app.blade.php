@@ -16,6 +16,13 @@
         <div class="nav-links">
             <a href="{{ route('dashboard') }}">Dashboard</a>
         </div>
+        <div class="nav-user">
+            <span>{{ auth()->user()->name }} <small>({{ auth()->user()->role->label() }})</small></span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-link">Logout</button>
+            </form>
+        </div>
     </nav>
     @endauth
 
