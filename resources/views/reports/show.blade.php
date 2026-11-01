@@ -5,7 +5,7 @@
 @section('content')
     <div class="toolbar">
         <div>
-            <h1>{{ $report->code }} — {{ $report->title }}</h1>
+            <h1>{{ $report->code }} &mdash; {{ $report->title }}</h1>
             <span class="badge badge-{{ $report->status->value }}">{{ $report->status->label() }}</span>
         </div>
         <div class="actions">
@@ -22,6 +22,20 @@
             @endcan
         </div>
     </div>
+
+    @if ($report->status === \App\Enums\ReportStatus::PerluPerbaikan && $report->isOwnedBy(auth()->user()))
+        <div class="alert alert-info">
+            Relawan meminta perbaikan: <strong>{{ $report->review_note }}</strong><br>
+            Silakan klik <em>Perbaiki</em>; setelah disimpan laporan akan ditinjau ulang.
+        </div>
+    @endif
+
+    @if ($report->status->isFinal())
+        <p class="muted">
+            Catatan: status akhir menandakan proses pada aplikasi komunitas selesai,
+            bukan pernyataan resmi mengenai kejadian kebakaran.
+        </p>
+    @endif
 
     <div class="card">
         <dl class="detail">
@@ -62,4 +76,79 @@
             <p class="muted">Tidak ada bukti yang dilampirkan.</p>
         @endif
     </div>
+
+    <div class="card">
+        <h2>Peninjauan</h2>
+        <dl class="detail">
+            <dt>Relawan peninjau</dt>
+            <dd>{{ $report->reviewer?->name ?? '-' }}</dd>
+
+            <dt>Catatan tinjauan</dt>
+            <dd>{{ $report->review_note ?? '-' }}</dd>
+
+            <dt>Waktu keputusan</dt>
+            <dd>{{ $report->reviewed_at?->format('d M Y H:i') ?? '-' }}</dd>
+        </dl>
+
+        @can('review', $report)
+            @if ($report->status === \App\Enums\ReportStatus::Baru)
+                <form method="POST" action="{{ route('reports.claim', $report) }}" class="actions" style="margin-top: 1rem">
+                    @csrf
+                    <button type="submit" class="btn btn-primary">Ambil untuk Ditinjau</button>
+                </form>
+            @elseif ($report->status === \App\Enums\ReportStatus::Ditinjau)
+                <form method="POST" action="{{ route('reports.review', $report) }}" class="form" style="margin-top: 1rem">
+                    @csrf
+                    <label>
+                        Keputusan tinjauan
+                        <select name="decision" required>
+                            <option value="">-- pilih keputusan --</option>
+                            @foreach ($decisions as $decision)
+                                <option value="{{ $decision->value }}" @selected(old('decision') === $decision->value)>
+                                    {{ $decision->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label>
+                        Catatan (kelengkapan, kewajaran, keterkaitan dengan laporan lain)
+                        <textarea name="review_note" required minlength="10" maxlength="1000">{{ old('review_note') }}</textarea>
+                    </label>
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Simpan Keputusan</button>
+                    </div>
+                </form>
+            @endif
+        @endcan
+    </div>
+
+    @if ($related->isNotEmpty())
+        <div class="card">
+            <h2>Laporan Lain di Area yang Sama (±48 jam)</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Judul</th>
+                            <th>Pelapor</th>
+                            <th>Waktu Kejadian</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($related as $item)
+                            <tr>
+                                <td><a href="{{ route('reports.show', $item) }}">{{ $item->code }}</a></td>
+                                <td>{{ $item->title }}</td>
+                                <td>{{ $item->reporter->name }}</td>
+                                <td>{{ $item->occurred_at->format('d M Y H:i') }}</td>
+                                <td><span class="badge badge-{{ $item->status->value }}">{{ $item->status->label() }}</span></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 @endsection

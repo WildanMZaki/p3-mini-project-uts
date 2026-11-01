@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ConditionLevel;
+use App\Enums\ReportStatus;
+use App\Enums\UserRole;
 use App\Http\Requests\ReportRequest;
 use App\Models\Area;
 use App\Models\Report;
@@ -44,11 +46,19 @@ class ReportController extends Controller
             ->with('status', "Laporan {$report->code} berhasil dikirim.");
     }
 
-    public function show(Report $report): View
+    public function show(Request $request, Report $report): View
     {
-        $report->load(['area', 'reporter']);
+        $report->load(['area', 'reporter', 'reviewer']);
 
-        return view('reports.show', compact('report'));
+        $related = $request->user()->hasRole(UserRole::Relawan, UserRole::Koordinator)
+            ? $report->relatedReports()
+            : collect();
+
+        return view('reports.show', [
+            'report' => $report,
+            'related' => $related,
+            'decisions' => ReportStatus::reviewDecisions(),
+        ]);
     }
 
     public function edit(Report $report): View

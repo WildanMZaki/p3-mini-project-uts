@@ -30,6 +30,11 @@ class ReportPolicy
         return $this->reporterCanModify($user, $report);
     }
 
+    public function review(User $user, Report $report): bool
+    {
+        return $user->role === UserRole::Relawan;
+    }
+
     private function reporterCanModify(User $user, Report $report): Response
     {
         if (! $report->isOwnedBy($user)) {

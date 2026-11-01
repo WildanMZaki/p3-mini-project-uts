@@ -47,4 +47,14 @@ class ReportFactory extends Factory
     {
         return $this->state(fn() => ['status' => $status]);
     }
+
+    public function reviewedBy(User $reviewer, ReportStatus $status = ReportStatus::Ditinjau): static
+    {
+        return $this->state(fn () => [
+            'status' => $status,
+            'reviewer_id' => $reviewer->id,
+            'reviewed_at' => $status === ReportStatus::Ditinjau ? null : now(),
+            'review_note' => $status === ReportStatus::Ditinjau ? null : 'Catatan tinjauan contoh dari relawan.',
+        ]);
+    }
 }

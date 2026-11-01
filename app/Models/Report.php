@@ -9,6 +9,7 @@ use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,7 @@ class Report extends Model
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
             'occurred_at' => 'datetime',
+            'reviewed_at' => 'datetime',
             'condition_level' => ConditionLevel::class,
             'status' => ReportStatus::class,
         ];
@@ -44,9 +46,31 @@ class Report extends Model
         return $this->belongsTo(User::class, 'reporter_id');
     }
 
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    /**
+     * @return Collection<int, Report>
+     */
+    public function relatedReports(int $hours = 48): Collection
+    {
+        return static::query()
+            ->with('reporter')
+            ->where('area_id', $this->area_id)
+            ->whereKeyNot($this->getKey())
+            ->whereBetween('occurred_at', [
+                $this->occurred_at->copy()->subHours($hours),
+                $this->occurred_at->copy()->addHours($hours),
+            ])
+            ->orderBy('occurred_at')
+            ->get();
     }
 
     public function isOwnedBy(User $user): bool

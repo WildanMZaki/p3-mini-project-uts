@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportEvidenceController;
+use App\Http\Controllers\ReviewController;
 use App\Models\Report;
 use Illuminate\Support\Facades\Route;
 
@@ -43,4 +44,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/{report}/evidence', ReportEvidenceController::class)
         ->can('view', 'report')
         ->name('reports.evidence');
+
+    // Peninjauan oleh relawan pemantau
+    Route::post('/reports/{report}/claim', [ReviewController::class, 'claim'])
+        ->can('review', 'report')
+        ->name('reports.claim');
+    Route::post('/reports/{report}/review', [ReviewController::class, 'decide'])
+        ->can('review', 'report')
+        ->name('reports.review');
 });

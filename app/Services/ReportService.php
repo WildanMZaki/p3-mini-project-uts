@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
-    public function __construct(private EvidenceService $evidence) {}
+    public function __construct(
+        private EvidenceService $evidence,
+        private ReportWorkflowService $workflow,
+    ) {}
 
     public function create(User $reporter, array $data, ?UploadedFile $evidence = null): Report
     {
@@ -33,6 +36,11 @@ class ReportService
     {
         return DB::transaction(function () use ($report, $data, $evidence) {
             $report->fill($data);
+
+            if ($report->status === ReportStatus::PerluPerbaikan) {
+                $this->workflow->resubmit($report);
+            }
+
             $report->save();
 
             if ($evidence !== null) {
