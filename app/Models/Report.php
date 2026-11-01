@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'area_id',
@@ -54,6 +55,11 @@ class Report extends Model
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    public function forwardings(): HasMany
+    {
+        return $this->hasMany(ReportForwarding::class);
     }
 
     /**

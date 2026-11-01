@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ConditionLevel;
+use App\Enums\ForwardingChannel;
 use App\Enums\ReportStatus;
 use App\Enums\UserRole;
 use App\Http\Requests\ReportRequest;
+use App\Models\Agency;
 use App\Models\Area;
 use App\Models\Report;
 use App\Services\ReportService;
@@ -48,7 +50,7 @@ class ReportController extends Controller
 
     public function show(Request $request, Report $report): View
     {
-        $report->load(['area', 'reporter', 'reviewer']);
+        $report->load(['area', 'reporter', 'reviewer', 'forwardings.agency', 'forwardings.coordinator']);
 
         $related = $request->user()->hasRole(UserRole::Relawan, UserRole::Koordinator)
             ? $report->relatedReports()
@@ -58,6 +60,8 @@ class ReportController extends Controller
             'report' => $report,
             'related' => $related,
             'decisions' => ReportStatus::reviewDecisions(),
+            'agencies' => Agency::query()->active()->orderBy('name')->get(),
+            'channels' => ForwardingChannel::cases(),
         ]);
     }
 

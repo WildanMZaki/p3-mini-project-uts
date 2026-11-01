@@ -35,6 +35,16 @@ class ReportPolicy
         return $user->role === UserRole::Relawan;
     }
 
+    public function forward(User $user, Report $report): bool
+    {
+        return $user->role === UserRole::Koordinator;
+    }
+
+    public function close(User $user, Report $report): bool
+    {
+        return $user->role === UserRole::Koordinator;
+    }
+
     private function reporterCanModify(User $user, Report $report): Response
     {
         if (! $report->isOwnedBy($user)) {

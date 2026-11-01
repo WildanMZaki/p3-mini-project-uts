@@ -91,7 +91,11 @@
         </dl>
 
         @can('review', $report)
-            @if ($report->status === \App\Enums\ReportStatus::Baru)
+            @if ($report->reviewer_id !== null && ! $report->reviewer()->is(auth()->user()))
+                <p class="muted" style="margin-top: 1rem">
+                    Laporan ini sedang ditangani oleh {{ $report->reviewer->name }}.
+                </p>
+            @elseif ($report->status === \App\Enums\ReportStatus::Baru)
                 <form method="POST" action="{{ route('reports.claim', $report) }}" class="actions" style="margin-top: 1rem">
                     @csrf
                     <button type="submit" class="btn btn-primary">Ambil untuk Ditinjau</button>
@@ -121,6 +125,89 @@
             @endif
         @endcan
     </div>
+
+    @if ($report->forwardings->isNotEmpty() || auth()->user()->can('forward', $report))
+        <div class="card">
+            <h2>Penerusan ke Pihak Terkait</h2>
+
+            @if ($report->forwardings->isEmpty())
+                <p class="muted">Belum ada penerusan yang dicatat.</p>
+            @else
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pihak Terkait</th>
+                                <th>Media</th>
+                                <th>Waktu</th>
+                                <th>Dicatat oleh</th>
+                                <th>Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($report->forwardings as $forwarding)
+                                <tr>
+                                    <td>{{ $forwarding->agency->name }}</td>
+                                    <td>{{ $forwarding->channel->label() }}</td>
+                                    <td>{{ $forwarding->forwarded_at->format('d M Y H:i') }}</td>
+                                    <td>{{ $forwarding->coordinator->name }}</td>
+                                    <td>{{ $forwarding->note ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            @can('forward', $report)
+                @if (in_array($report->status, [\App\Enums\ReportStatus::PerluDiteruskan, \App\Enums\ReportStatus::Diteruskan], true))
+                    <form method="POST" action="{{ route('reports.forward', $report) }}" class="form" style="margin-top: 1rem">
+                        @csrf
+                        <div class="row">
+                            <label>
+                                Pihak terkait
+                                <select name="agency_id" required>
+                                    <option value="">-- pilih pihak --</option>
+                                    @foreach ($agencies as $agency)
+                                        <option value="{{ $agency->id }}" @selected(old('agency_id') == $agency->id)>{{ $agency->name }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label>
+                                Media penerusan
+                                <select name="channel" required>
+                                    @foreach ($channels as $channel)
+                                        <option value="{{ $channel->value }}" @selected(old('channel') === $channel->value)>{{ $channel->label() }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label>
+                                Waktu penerusan
+                                <input type="datetime-local" name="forwarded_at" value="{{ old('forwarded_at', now()->format('Y-m-d\TH:i')) }}" required>
+                            </label>
+                        </div>
+                        <label>
+                            Catatan (opsional)
+                            <textarea name="note" maxlength="500">{{ old('note') }}</textarea>
+                        </label>
+                        <div class="actions">
+                            <button type="submit" class="btn btn-primary">Catat Penerusan</button>
+                        </div>
+                    </form>
+                @endif
+            @endcan
+
+            @can('close', $report)
+                @if ($report->status === \App\Enums\ReportStatus::Diteruskan)
+                    <form method="POST" action="{{ route('reports.close', $report) }}" class="actions" style="margin-top: 1rem"
+                          onsubmit="return confirm('Tandai proses laporan ini selesai?')">
+                        @csrf
+                        <button type="submit" class="btn">Tandai Proses Selesai</button>
+                    </form>
+                @endif
+            @endcan
+        </div>
+    @endif
 
     @if ($related->isNotEmpty())
         <div class="card">

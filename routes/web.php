@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportEvidenceController;
 use App\Http\Controllers\ReviewController;
@@ -52,4 +53,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/reports/{report}/review', [ReviewController::class, 'decide'])
         ->can('review', 'report')
         ->name('reports.review');
+
+    // Tindak lanjut oleh koordinator relawan
+    Route::post('/reports/{report}/forwardings', [FollowUpController::class, 'forward'])
+        ->can('forward', 'report')
+        ->name('reports.forward');
+    Route::post('/reports/{report}/close', [FollowUpController::class, 'close'])
+        ->can('close', 'report')
+        ->name('reports.close');
 });
