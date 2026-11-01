@@ -49,6 +49,16 @@ class Report extends Model
         return $this->belongsTo(Area::class);
     }
 
+    public function hasEvidence(): bool
+    {
+        return $this->evidence_path !== null;
+    }
+
+    public function evidenceIsImage(): bool
+    {
+        return str_starts_with((string) $this->evidence_mime, 'image/');
+    }
+
     #[Scope]
     protected function active(Builder $query): void
     {

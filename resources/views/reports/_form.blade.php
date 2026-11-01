@@ -74,6 +74,17 @@
     <textarea name="description" maxlength="2000" required>{{ old('description', $report?->description) }}</textarea>
 </label>
 
+<label>
+    Bukti pendukung (opsional)
+    <input type="file" name="evidence" accept=".jpg,.jpeg,.png,.pdf">
+    <span class="hint">
+        JPG, JPEG, PNG, atau PDF, maksimal 2 MB.
+        @if ($report?->hasEvidence())
+            File saat ini: {{ $report->evidence_original_name }} (pilih file baru untuk mengganti).
+        @endif
+    </span>
+</label>
+
 @push('scripts')
 <script>
     document.getElementById('btn-detect-location')?.addEventListener('click', function () {

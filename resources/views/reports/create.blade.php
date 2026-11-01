@@ -6,7 +6,7 @@
     <h1>Buat Laporan Kejadian</h1>
 
     <div class="card">
-        <form method="POST" action="{{ route('reports.store') }}" class="form">
+        <form method="POST" action="{{ route('reports.store') }}" class="form" enctype="multipart/form-data">
             @csrf
             @include('reports._form')
             <div class="actions">

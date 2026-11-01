@@ -46,4 +46,16 @@
             <dd>{{ $report->created_at->format('d M Y H:i') }}</dd>
         </dl>
     </div>
+
+    <div class="card">
+        <h2>Bukti Pendukung</h2>
+        @if ($report->hasEvidence())
+            @if ($report->evidenceIsImage())
+                <p><img src="{{ route('reports.evidence', $report) }}" alt="Bukti laporan {{ $report->code }}" class="evidence-preview"></p>
+            @endif
+            <p><a href="{{ route('reports.evidence', $report) }}" target="_blank">Buka {{ $report->evidence_original_name }}</a></p>
+        @else
+            <p class="muted">Tidak ada bukti yang dilampirkan.</p>
+        @endif
+    </div>
 @endsection

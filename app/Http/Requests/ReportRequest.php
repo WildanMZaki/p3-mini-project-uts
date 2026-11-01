@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\ConditionLevel;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class ReportRequest extends FormRequest
 {
@@ -46,6 +47,10 @@ class ReportRequest extends FormRequest
             ],
             'occurred_at' => ['required', 'date', 'before_or_equal:now'],
             'condition_level' => ['required', Rule::enum(ConditionLevel::class)],
+            'evidence' => [
+                'nullable',
+                File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024),
+            ],
         ];
     }
 
@@ -61,6 +66,7 @@ class ReportRequest extends FormRequest
             'location_detail' => 'detail lokasi',
             'occurred_at' => 'waktu kejadian',
             'condition_level' => 'tingkat kondisi',
+            'evidence' => 'bukti pendukung',
         ];
     }
 
@@ -76,6 +82,8 @@ class ReportRequest extends FormRequest
             'latitude.decimal' => 'Latitude maksimal 7 angka di belakang koma.',
             'longitude.decimal' => 'Longitude maksimal 7 angka di belakang koma.',
             'occurred_at.before_or_equal' => 'Waktu kejadian tidak boleh di masa depan.',
+            'evidence.mimes' => 'Bukti pendukung harus berupa file JPG, JPEG, PNG, atau PDF.',
+            'evidence.max' => 'Ukuran bukti pendukung maksimal 2 MB.',
         ];
     }
 }

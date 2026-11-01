@@ -6,7 +6,7 @@
     <h1>Perbaiki Laporan {{ $report->code }}</h1>
 
     <div class="card">
-        <form method="POST" action="{{ route('reports.update', $report) }}" class="form">
+        <form method="POST" action="{{ route('reports.update', $report) }}" class="form" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             @include('reports._form')

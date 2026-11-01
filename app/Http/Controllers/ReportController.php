@@ -32,7 +32,11 @@ class ReportController extends Controller
 
     public function store(ReportRequest $request): RedirectResponse
     {
-        $report = $this->reports->create($request->user(), $request->validated());
+        $report = $this->reports->create(
+            $request->user(),
+            $request->safe()->except('evidence'),
+            $request->file('evidence'),
+        );
 
         return redirect()
             ->route('reports.show', $report)
@@ -53,7 +57,11 @@ class ReportController extends Controller
 
     public function update(ReportRequest $request, Report $report): RedirectResponse
     {
-        $this->reports->update($report, $request->validated());
+        $this->reports->update(
+            $report,
+            $request->safe()->except('evidence'),
+            $request->file('evidence'),
+        );
 
         return redirect()
             ->route('reports.show', $report)

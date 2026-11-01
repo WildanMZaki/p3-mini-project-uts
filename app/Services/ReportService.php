@@ -5,42 +5,53 @@ namespace App\Services;
 use App\Enums\ReportStatus;
 use App\Models\Report;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
-    /**
-     * Membuat laporan baru dari akses pelapor.
-     */
-    public function create(User $reporter, array $data): Report
+    public function __construct(private EvidenceService $evidence) {}
+
+    public function create(User $reporter, array $data, ?UploadedFile $evidence = null): Report
     {
-        return DB::transaction(function () use ($reporter, $data) {
+        return DB::transaction(function () use ($reporter, $data, $evidence) {
             $report = new Report($data);
             $report->code = $this->generateCode();
             $report->status = ReportStatus::Baru;
             $report->reporter()->associate($reporter);
             $report->save();
 
+            if ($evidence !== null) {
+                $this->evidence->attach($report, $evidence);
+            }
+
             return $report;
         });
     }
 
-    public function update(Report $report, array $data): Report
+    public function update(Report $report, array $data, ?UploadedFile $evidence = null): Report
     {
-        $report->fill($data);
-        $report->save();
+        return DB::transaction(function () use ($report, $data, $evidence) {
+            $report->fill($data);
+            $report->save();
 
-        return $report;
+            if ($evidence !== null) {
+                $this->evidence->attach($report, $evidence);
+            }
+
+            return $report;
+        });
     }
 
     public function delete(Report $report): void
     {
-        $report->delete();
+        DB::transaction(fn () => $report->delete());
+
+        $this->evidence->remove($report);
     }
 
     private function generateCode(): string
     {
-        // Rencana format: KHL-YYYYMM-0001 (nomor urut per bulan)
         $prefix = 'KHL-' . now()->format('Ym') . '-';
 
         $lastCode = Report::query()
