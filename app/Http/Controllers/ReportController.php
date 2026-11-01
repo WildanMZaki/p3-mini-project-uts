@@ -13,6 +13,7 @@ use App\Models\Report;
 use App\Services\ReportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -21,15 +22,27 @@ class ReportController extends Controller
 
     public function index(Request $request): View
     {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'area_id' => ['nullable', 'integer', 'exists:areas,id'],
+            'status' => ['nullable', Rule::enum(ReportStatus::class)],
+            'condition_level' => ['nullable', Rule::enum(ConditionLevel::class)],
+        ]);
+
         $reports = Report::query()
             ->visibleTo($request->user())
+            ->filter($filters)
             ->with(['area', 'reporter'])
             ->latest('occurred_at')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('reports.index', [
             'reports' => $reports,
+            'filters' => $filters,
             'areas' => Area::query()->orderBy('name')->get(),
+            'statuses' => ReportStatus::cases(),
+            'conditions' => ConditionLevel::cases(),
         ]);
     }
 

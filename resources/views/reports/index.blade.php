@@ -27,6 +27,45 @@
         <div id="index-area-summary" style="margin-top: .75rem"></div>
     </div>
 
+    {{-- Form GET: parameter filter masuk ke query string sehingga ikut terbawa saat pindah halaman --}}
+    <form method="GET" action="{{ route('reports.index') }}" class="card filters">
+        <label>
+            Cari
+            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Kode, judul, atau lokasi">
+        </label>
+        <label>
+            Area
+            <select name="area_id">
+                <option value="">Semua area</option>
+                @foreach ($areas as $area)
+                    <option value="{{ $area->id }}" @selected(($filters['area_id'] ?? null) == $area->id)>{{ $area->name }}</option>
+                @endforeach
+            </select>
+        </label>
+        <label>
+            Status
+            <select name="status">
+                <option value="">Semua status</option>
+                @foreach ($statuses as $status)
+                    <option value="{{ $status->value }}" @selected(($filters['status'] ?? null) === $status->value)>{{ $status->label() }}</option>
+                @endforeach
+            </select>
+        </label>
+        <label>
+            Kondisi
+            <select name="condition_level">
+                <option value="">Semua kondisi</option>
+                @foreach ($conditions as $condition)
+                    <option value="{{ $condition->value }}" @selected(($filters['condition_level'] ?? null) === $condition->value)>{{ $condition->label() }}</option>
+                @endforeach
+            </select>
+        </label>
+        <button type="submit" class="btn btn-primary">Terapkan</button>
+        <a href="{{ route('reports.index') }}" class="btn">Reset</a>
+    </form>
+
+    <p class="muted">Menampilkan {{ $reports->firstItem() ?? 0 }}–{{ $reports->lastItem() ?? 0 }} dari {{ $reports->total() }} laporan.</p>
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -57,7 +96,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ $isPelapor ? 6 : 7 }}" class="muted">Belum ada laporan.</td>
+                        <td colspan="{{ $isPelapor ? 6 : 7 }}" class="muted">Tidak ada laporan yang sesuai.</td>
                     </tr>
                 @endforelse
             </tbody>

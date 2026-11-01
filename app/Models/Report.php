@@ -100,6 +100,27 @@ class Report extends Model
         $query->whereIn('status', ReportStatus::activeCases());
     }
 
+    /**
+     * Filter daftar laporan dari query string.
+     *
+     * @param  array{q?: string|null, area_id?: int|string|null, status?: string|null, condition_level?: string|null}  $filters
+     */
+    #[Scope]
+    protected function filter(Builder $query, array $filters): void
+    {
+        $query
+            ->when($filters['q'] ?? null, function (Builder $query, string $term) {
+                $query->where(function (Builder $query) use ($term) {
+                    $query->where('code', 'like', "%{$term}%")
+                        ->orWhere('title', 'like', "%{$term}%")
+                        ->orWhere('location_detail', 'like', "%{$term}%");
+                });
+            })
+            ->when($filters['area_id'] ?? null, fn (Builder $query, $areaId) => $query->where('area_id', $areaId))
+            ->when($filters['status'] ?? null, fn (Builder $query, $status) => $query->where('status', $status))
+            ->when($filters['condition_level'] ?? null, fn (Builder $query, $level) => $query->where('condition_level', $level));
+    }
+
     #[Scope]
     protected function visibleTo(Builder $query, User $user): void
     {
