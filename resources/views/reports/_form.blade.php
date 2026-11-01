@@ -23,8 +23,8 @@
 <div class="row">
     <label>
         Waktu kejadian
-        <input type="datetime-local" name="occurred_at"
-               value="{{ old('occurred_at', $report?->occurred_at?->format('Y-m-d\TH:i')) }}" required>
+        <input type="datetime-local" name="occurred_at" id="occurred_at"
+               value="{{ old('occurred_at', $report?->occurred_at?->format('Y-m-d\TH:i') ?? now()->format('Y-m-d\TH:i')) }}" required>
     </label>
     <label>
         Tingkat kondisi
@@ -47,20 +47,60 @@
            value="{{ old('location_detail', $report?->location_detail) }}" required>
 </label>
 
-<div class="row">
-    <label>
-        Latitude
-        <input type="text" name="latitude" inputmode="decimal" placeholder="-3.2145000"
-               value="{{ old('latitude', $report?->latitude) }}" required>
-    </label>
-    <label>
-        Longitude
-        <input type="text" name="longitude" inputmode="decimal" placeholder="105.4512000"
-               value="{{ old('longitude', $report?->longitude) }}" required>
-    </label>
+<div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-size: 0.9rem;">Koordinat Lokasi</span>
+        <button type="button" id="btn-detect-location" class="btn" style="font-size: 0.8rem; padding: 0.25rem 0.65rem;">
+            📍 Gunakan Lokasi Saat Ini
+        </button>
+    </div>
+    <div class="row">
+        <label>
+            Latitude
+            <input type="text" name="latitude" id="latitude" inputmode="decimal" placeholder="-3.2145000"
+                   value="{{ old('latitude', $report?->latitude) }}" required>
+        </label>
+        <label>
+            Longitude
+            <input type="text" name="longitude" id="longitude" inputmode="decimal" placeholder="105.4512000"
+                   value="{{ old('longitude', $report?->longitude) }}" required>
+        </label>
+    </div>
+    <span id="location-hint" class="hint">Klik tombol di atas untuk mengisi koordinat otomatis via GPS browser, atau masukkan manual.</span>
 </div>
 
 <label>
     Deskripsi kondisi yang dilihat
     <textarea name="description" maxlength="2000" required>{{ old('description', $report?->description) }}</textarea>
 </label>
+
+@push('scripts')
+<script>
+    document.getElementById('btn-detect-location')?.addEventListener('click', function () {
+        const hint = document.getElementById('location-hint');
+        if (!navigator.geolocation) {
+            if (hint) hint.textContent = 'Browser Anda tidak mendukung geolokasi.';
+            return;
+        }
+
+        if (hint) hint.textContent = 'Mendeteksi lokasi...';
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
+                document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
+                if (hint) hint.textContent = 'Koordinat lokasi berhasil dideteksi.';
+            },
+            function (error) {
+                let msg = 'Gagal mendeteksi lokasi.';
+                if (error.code === error.PERMISSION_DENIED) {
+                    msg = 'Izin akses lokasi ditolak oleh browser/pengguna.';
+                } else if (error.code === error.TIMEOUT) {
+                    msg = 'Waktu permintaan lokasi habis.';
+                }
+                if (hint) hint.textContent = msg + ' Silakan masukkan manual.';
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+</script>
+@endpush
