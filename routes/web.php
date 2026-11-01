@@ -4,6 +4,7 @@ use App\Http\Controllers\AreaSummaryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\RecapController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportEvidenceController;
 use App\Http\Controllers\ReviewController;
@@ -21,7 +22,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // Reports Menu
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -65,4 +66,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/reports/{report}/close', [FollowUpController::class, 'close'])
         ->can('close', 'report')
         ->name('reports.close');
+
+    // Rekap sederhana — relawan & koordinator
+    Route::get('/recap', RecapController::class)
+        ->middleware('can:view-recap')
+        ->name('recap');
 });

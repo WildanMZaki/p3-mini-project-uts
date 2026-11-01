@@ -19,6 +19,9 @@
             @can('create', \App\Models\Report::class)
                 <a href="{{ route('reports.create') }}">Buat Laporan</a>
             @endcan
+            @can('view-recap')
+                <a href="{{ route('recap') }}">Rekap</a>
+            @endcan
         </div>
         <div class="nav-user">
             <span>{{ auth()->user()->name }} <small>({{ auth()->user()->role->label() }})</small></span>
